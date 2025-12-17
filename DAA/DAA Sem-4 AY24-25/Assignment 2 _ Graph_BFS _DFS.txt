@@ -1,0 +1,370 @@
+#include <iostream>
+using namespace std;
+class node 
+{
+	public:
+    		int id;
+    		string name;    
+    		node *next;
+    		friend class graph;
+    		friend class stack;
+    		friend class Queue;
+};
+class Queue
+{
+	int q[20];
+	int front, rear;
+	friend class BST;
+	public:
+		Queue()
+		{
+			front = -1;
+			rear = -1;
+		}
+		void insert(int );
+		int del();
+		int empty(); 
+		
+};
+void Queue :: insert(int temp)
+{
+	rear++;
+	q[rear] = temp;
+}
+int Queue :: del()
+{
+	front++;
+	return q[front];
+}
+int Queue :: empty()
+{
+	if (front == rear)
+		return 1;
+	else
+		return 0;
+}	
+class stack
+{
+	int st[20];
+	int top;
+	friend class graph;
+	public:
+		stack()
+		{
+			top = -1;
+		}
+		void push(int);
+		int pop();
+		int empty(); 
+		
+};
+void stack :: push(int temp)
+{
+	top++;
+	st[top] = temp;
+}
+int stack :: pop()
+{
+	int t;
+	t = st[top];
+	top--;
+	return (t);
+}
+int stack :: empty()
+{
+	if(top == -1)
+		return 0;
+	else
+		return 1;
+}
+class graph 
+{
+	public:
+    		void create_adj_list();
+    		void display();
+    		node* search(int v_id);
+    		node* head[14];
+    		int visited[20];
+    		void DFT();
+    		void DFT_rec(int v);
+		void DFT_non_rec();
+    		void BFT_non_rec(); 
+    		int n;
+};
+
+void graph :: create_adj_list() 
+{
+    char ch;
+    cout << "Enter the number of vertices: ";
+    cin >> n;
+    node *curr;
+    for(int i = 0; i < n; i++) 
+    {
+        head[i] = new node();  
+        cout << "Enter name of user " << i << " : ";
+        cin >> head[i]->name;
+        head[i]->id = i;
+        head[i]->next = NULL;
+    }
+    for(int i = 0; i < n; i++) 
+    {
+        node *temp = head[i];
+        while(1) {
+            cout << "\nIs there any vertex connected with " << head[i]->id << " :";
+            cin >> ch;
+            if(ch == 'Y') {
+                curr = new node();
+                cout << "Enter connected vertex id: ";
+                cin >> curr->id;
+                curr->name = head[curr->id]->name;
+                curr->next = NULL;
+                temp->next = curr;
+                temp = curr;
+            } 
+            else
+                break;
+        }
+    }
+}
+
+node* graph::search(int v_id) 
+{
+    node* found_vertex = nullptr;
+    for(int i = 0; i < n; i++) 
+    {
+        if(head[i]->id == v_id) 
+        {
+            found_vertex = head[i];
+            break;
+        }
+        node *temp = head[i]->next;
+        while(temp != NULL) 
+        {
+            if(temp->id == v_id) 
+            {
+                found_vertex = temp;
+                break;
+            }
+            temp = temp->next;
+        }
+        if(found_vertex != nullptr) 
+        {
+            break;
+        }
+    }
+    if(found_vertex != nullptr) 
+    {
+        cout << "Vertex found with name: " << found_vertex->name << endl;
+        cout << "Connected vertices:" << endl;
+        node* temp = found_vertex->next;
+        while(temp != NULL) 
+        {
+            cout << "Vertex id: " << temp->id << "   Vertex name: " << temp->name << endl;
+            temp = temp->next;
+        }
+    } 
+    else 
+    {
+        cout << "Vertex not found." << endl;
+    }
+    return found_vertex;
+}  
+void graph :: display() 
+{
+    for(int i=0; i<n; i++) 
+    {
+        node *temp = head[i]->next;
+        cout << "the connections of user " << head[i]->id << " are " << endl;
+        if (temp != NULL) 
+        {
+            while (temp != NULL) 
+            {
+                cout << "user id: " << temp->id << "   user name: " << temp->name << endl;
+                temp = temp->next;
+            }
+        } 
+        else 
+        {
+            cout << "No connections" << endl;
+        }
+    }
+}
+void graph :: DFT()
+{
+	int v;
+	cout<<"Enter starting vertex for DFT: ";
+	cin>>v;
+	for(int i=0;i<n;i++)
+	{
+		visited[i] = 0;
+	}
+	visited[v] = 1;	
+	DFT_rec(v);
+}
+void graph :: DFT_rec(int v)
+{
+	cout<<" "<<v<<" "<<head[v]->name;
+	node* temp = head[v]->next;
+	while(temp != NULL)
+	{
+		if(visited[temp->id] == 0)
+		{
+			visited[temp->id] = 1;
+			DFT_rec(temp->id);
+		}
+		temp = temp->next;
+	}
+}
+void graph::DFT_non_rec() 
+{
+    stack s;
+    int v;
+    cout << "Enter Start Vertex for DFT(non-recursive) ";
+    cin >> v;
+    for(int i = 0; i < n; i++) 
+    {
+        visited[i] = 0;
+    }
+    visited[v] = 1;
+    s.push(v);
+    while (s.empty() == 1) 
+    {
+        v = s.pop();
+        cout << " " << v << " " << head[v]->name;
+        node* temp = head[v]->next;
+        while (temp != NULL) 
+        {
+            if (visited[temp->id] == 0) 
+            {
+                visited[temp->id] = 1;
+                s.push(temp->id); 
+            }
+            temp = temp->next;
+        }
+    }
+}
+void graph::BFT_non_rec() 
+{
+    Queue q;
+    int v;
+    cout << "Enter Start Vertex for BFT(non-recursive) ";
+    cin >> v;
+    for(int i = 0; i < n; i++) 
+    {
+        visited[i] = 0;
+    }
+    visited[v] = 1;
+    q.insert(v);
+    while (q.empty() == 0) 
+    {
+        v = q.del();
+        cout << " " << v << " " << head[v]->name;
+        node* temp = head[v]->next;
+        while (temp != NULL) 
+        {
+            if (visited[temp->id] == 0) 
+            {
+                visited[temp->id] = 1;
+                q.insert(temp->id); 
+            }
+            temp = temp->next;
+        }
+    }
+}
+int main() 
+{
+    graph g1;
+    cout << "Creation of Graph \n";
+    g1.create_adj_list();
+    cout << endl;
+    cout << "Display of Graph\n";
+    g1.display();
+    cout << endl;
+    int id_to_search;
+    cout << "Enter the id of the vertex to search: ";
+    cin >> id_to_search;
+    g1.search(id_to_search);
+    cout<<"Recursive DFT Traversal"<<endl;
+    g1.DFT();
+    cout<<endl;
+    cout<<"Non-Recursive DFT Traversal"<<endl;
+    g1.DFT_non_rec();
+    cout<<endl;
+    cout<<"Non-Recursive BFT Traversal"<<endl;
+    g1.BFT_non_rec();
+    cout<<endl;
+    return 0;
+}
+
+/*
+Output 
+Creation of Graph 
+Enter the number of vertices: 4
+Enter name of user 0 : a
+Enter name of user 1 : b
+Enter name of user 2 : c
+Enter name of user 3 : d
+
+Is there any vertex connected with 0 :Y
+Enter connected vertex id: 1
+
+Is there any vertex connected with 0 :Y
+Enter connected vertex id: 3
+
+Is there any vertex connected with 0 :N
+
+Is there any vertex connected with 1 :Y
+Enter connected vertex id: 0
+
+Is there any vertex connected with 1 :Y
+Enter connected vertex id: 2
+
+Is there any vertex connected with 1 :N
+
+Is there any vertex connected with 2 :Y
+Enter connected vertex id: 3
+
+Is there any vertex connected with 2 :Y
+Enter connected vertex id: 1
+
+Is there any vertex connected with 2 :N
+
+Is there any vertex connected with 3 :Y
+Enter connected vertex id: 0
+
+Is there any vertex connected with 3 :Y
+Enter connected vertex id: 2
+
+Is there any vertex connected with 3 :N
+Display of Graph
+the connections of user 0 are 
+user id: 1   user name: b
+user id: 3   user name: d
+the connections of user 1 are 
+user id: 0   user name: a
+user id: 2   user name: c
+the connections of user 2 are 
+user id: 3   user name: d
+user id: 1   user name: b
+the connections of user 3 are 
+user id: 0   user name: a
+user id: 2   user name: c
+
+Enter the id of the vertex to search: 0
+Vertex found with name: a
+Connected vertices:
+Vertex id: 1   Vertex name: b
+Vertex id: 3   Vertex name: d
+Recursive DFT Traversal
+Enter starting vertex for DFT: 0
+ 0 a 1 b 2 c 3 d
+Non-Recursive DFT Traversal
+Enter Start Vertex for DFT(non-recursive) 1
+ 1 b 2 c 3 d 0 a
+Non-Recursive BFT Traversal
+Enter Start Vertex for BFT(non-recursive) 2
+ 2 c 3 d 1 b 0 a
+
+
+
+*/
